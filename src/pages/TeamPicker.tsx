@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import './TeamPicker.css'
 
 interface TeamRound {
@@ -31,7 +30,6 @@ interface TeamPickerState {
 }
 
 function TeamPicker() {
-  const navigate = useNavigate()
   const [nameInput, setNameInput] = useState('')
   const [names, setNames] = useState<string[]>([])
   const [numTeams, setNumTeams] = useState(2)
@@ -203,7 +201,8 @@ function TeamPicker() {
       team1: formatTeamName(teams[0]),
       team2: formatTeamName(teams[1])
     }))
-    navigate('/bets')
+    // Use window.location for guaranteed navigation
+    window.location.href = '/bets'
   }
 
   const canGenerate = () => {
