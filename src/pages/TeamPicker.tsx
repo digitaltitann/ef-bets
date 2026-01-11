@@ -20,6 +20,18 @@ interface Session {
 
 const CURRENT_SESSION_KEY = 'ef-bets-current-session'
 const SESSIONS_KEY = 'ef-bets-sessions'
+const TEAM_PICKER_STATE_KEY = 'ef-bets-team-picker-state'
+
+interface TeamPickerState {
+  names: string[]
+  teams: string[][]
+  bench: string[]
+  numTeams: number
+  maxPerGroup: number
+  distributionMode: DistributionMode
+  submitted: boolean
+  sessionId: number | null
+}
 
 function TeamPicker() {
   const [nameInput, setNameInput] = useState('')
@@ -33,16 +45,52 @@ function TeamPicker() {
   const [currentSession, setCurrentSession] = useState<Session | null>(null)
   const [submitted, setSubmitted] = useState(false)
 
+  // Load session and persisted state on mount
   useEffect(() => {
-    const saved = localStorage.getItem(CURRENT_SESSION_KEY)
-    if (saved) {
-      const session = JSON.parse(saved)
-      if (!session.teamRounds) {
+    const savedSession = localStorage.getItem(CURRENT_SESSION_KEY)
+    let session: Session | null = null
+    if (savedSession) {
+      session = JSON.parse(savedSession)
+      if (session && !session.teamRounds) {
         session.teamRounds = []
       }
       setCurrentSession(session)
     }
+
+    // Load persisted team picker state
+    const savedState = localStorage.getItem(TEAM_PICKER_STATE_KEY)
+    if (savedState) {
+      const state: TeamPickerState = JSON.parse(savedState)
+      // Only restore if it's for the same session (or both null)
+      if (state.sessionId === (session?.id ?? null)) {
+        setNames(state.names)
+        setTeams(state.teams)
+        setBench(state.bench)
+        setNumTeams(state.numTeams)
+        setMaxPerGroup(state.maxPerGroup)
+        setDistributionMode(state.distributionMode)
+        setSubmitted(state.submitted)
+      } else {
+        // Different session, clear saved state
+        localStorage.removeItem(TEAM_PICKER_STATE_KEY)
+      }
+    }
   }, [])
+
+  // Persist state whenever it changes
+  useEffect(() => {
+    const state: TeamPickerState = {
+      names,
+      teams,
+      bench,
+      numTeams,
+      maxPerGroup,
+      distributionMode,
+      submitted,
+      sessionId: currentSession?.id ?? null
+    }
+    localStorage.setItem(TEAM_PICKER_STATE_KEY, JSON.stringify(state))
+  }, [names, teams, bench, numTeams, maxPerGroup, distributionMode, submitted, currentSession])
 
   const addName = () => {
     const trimmed = nameInput.trim()
