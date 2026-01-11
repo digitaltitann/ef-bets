@@ -9,7 +9,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="teams" element={<TeamPicker />} />
+        <Route path="randomizer" element={<TeamPicker />} />
         <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
