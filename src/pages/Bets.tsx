@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import './Bets.css'
 
 interface Bet {
@@ -21,6 +22,7 @@ const CURRENT_SESSION_KEY = 'ef-bets-current-session'
 const PENDING_BET_KEY = 'ef-bets-pending-bet'
 
 function Bets() {
+  const location = useLocation()
   const [team1, setTeam1] = useState('')
   const [team2, setTeam2] = useState('')
   const [amount, setAmount] = useState('')
@@ -31,12 +33,16 @@ function Bets() {
   const [showSessionsModal, setShowSessionsModal] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null)
 
+  // Load sessions on mount
   useEffect(() => {
     const saved = localStorage.getItem(SESSIONS_KEY)
     if (saved) {
       setSessions(JSON.parse(saved))
     }
+  }, [])
 
+  // Load current session and check for pending bet when navigating to this page
+  useEffect(() => {
     // Load current session
     const currentSession = localStorage.getItem(CURRENT_SESSION_KEY)
     if (currentSession) {
@@ -54,7 +60,7 @@ function Bets() {
       setTeam2(t2)
       localStorage.removeItem(PENDING_BET_KEY)
     }
-  }, [])
+  }, [location])
 
   const saveSessions = (newSessions: Session[]) => {
     setSessions(newSessions)
