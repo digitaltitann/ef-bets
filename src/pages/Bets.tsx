@@ -45,8 +45,9 @@ function Bets() {
     }
   }, [])
 
-  // Load current session when navigating to this page
+  // Load current session and check for pending bet when navigating to this page
   useEffect(() => {
+    // Load current session
     const currentSession = localStorage.getItem(CURRENT_SESSION_KEY)
     if (currentSession) {
       const session = JSON.parse(currentSession)
@@ -54,10 +55,8 @@ function Bets() {
       setSessionName(session.name)
       setBets(session.bets || [])
     }
-  }, [location])
 
-  // Check for pending bet from Team Picker via navigation state
-  useEffect(() => {
+    // Check for pending bet from Team Picker via navigation state
     const state = location.state as LocationState
     if (state?.team1 && state?.team2) {
       setTeam1(state.team1)
@@ -65,7 +64,7 @@ function Bets() {
       // Clear the state so it doesn't persist on refresh
       window.history.replaceState({}, document.title)
     }
-  }, [location.state])
+  }, [location.key])
 
   const saveSessions = (newSessions: Session[]) => {
     setSessions(newSessions)
