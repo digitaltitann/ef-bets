@@ -50,8 +50,7 @@ function Bets() {
     }
   }, [])
 
-  // Check for pending bet from Team Picker - runs on every render
-  // Once processed, the pending bet is removed from localStorage so it won't process again
+  // Check for pending bet from Team Picker on mount
   useEffect(() => {
     const pendingBet = localStorage.getItem(PENDING_BET_KEY)
     if (pendingBet) {
@@ -60,7 +59,7 @@ function Bets() {
       setTeam2(t2)
       localStorage.removeItem(PENDING_BET_KEY)
     }
-  })
+  }, [])
 
   const saveSessions = (newSessions: Session[]) => {
     setSessions(newSessions)
