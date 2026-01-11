@@ -198,13 +198,12 @@ function TeamPicker() {
       }
     }
 
-    // Navigate to Bets page with team data
-    navigate('/bets', {
-      state: {
-        team1: formatTeamName(teams[0]),
-        team2: formatTeamName(teams[1])
-      }
-    })
+    // Save pending bet to localStorage and navigate to Bets page
+    localStorage.setItem('ef-bets-pending-bet', JSON.stringify({
+      team1: formatTeamName(teams[0]),
+      team2: formatTeamName(teams[1])
+    }))
+    navigate('/bets')
   }
 
   const canGenerate = () => {
