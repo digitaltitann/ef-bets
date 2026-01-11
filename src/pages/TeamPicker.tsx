@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import './TeamPicker.css'
 
-type DistributionMode = 'teams' | 'maxPerGroup'
-
 interface Bet {
   id: number
   team1: string
@@ -36,7 +34,6 @@ interface TeamPickerState {
   bench: string[]
   numTeams: number
   maxPerGroup: number
-  distributionMode: DistributionMode
   submitted: boolean
   sessionId: number | null
   betAmount: string
@@ -48,7 +45,6 @@ function TeamPicker() {
   const [names, setNames] = useState<string[]>([])
   const [numTeams, setNumTeams] = useState(2)
   const [maxPerGroup, setMaxPerGroup] = useState(4)
-  const [distributionMode, setDistributionMode] = useState<DistributionMode>('teams')
   const [teams, setTeams] = useState<string[][]>([])
   const [bench, setBench] = useState<string[]>([])
   const [isShuffling, setIsShuffling] = useState(false)
@@ -83,7 +79,6 @@ function TeamPicker() {
         setBench(state.bench)
         setNumTeams(state.numTeams)
         setMaxPerGroup(state.maxPerGroup)
-        setDistributionMode(state.distributionMode)
         setSubmitted(state.submitted)
         setBetAmount(state.betAmount || '')
         setCurrentBetId(state.currentBetId || null)
@@ -102,14 +97,13 @@ function TeamPicker() {
       bench,
       numTeams,
       maxPerGroup,
-      distributionMode,
       submitted,
       sessionId: currentSession?.id ?? null,
       betAmount,
       currentBetId
     }
     localStorage.setItem(TEAM_PICKER_STATE_KEY, JSON.stringify(state))
-  }, [names, teams, bench, numTeams, maxPerGroup, distributionMode, submitted, currentSession, betAmount, currentBetId])
+  }, [names, teams, bench, numTeams, maxPerGroup, submitted, currentSession, betAmount, currentBetId])
 
   const addName = () => {
     const trimmed = nameInput.trim()
@@ -153,7 +147,7 @@ function TeamPicker() {
 
   const generateTeams = () => {
     if (names.length === 0) return
-    if (distributionMode === 'teams' && names.length < numTeams) return
+    if (names.length < numTeams) return
 
     setIsShuffling(true)
     setSubmitted(false)
@@ -162,51 +156,29 @@ function TeamPicker() {
 
     setTimeout(() => {
       const shuffled = shuffleArray(names)
-      let newTeams: string[][]
-      let newBench: string[] = []
+      const newTeams: string[][] = Array.from({ length: numTeams }, () => [])
+      const newBench: string[] = []
+      const maxCapacity = numTeams * maxPerGroup
 
-      if (distributionMode === 'teams') {
-        // Create specified number of teams, max maxPerGroup per team
-        newTeams = Array.from({ length: numTeams }, () => [])
-        const maxCapacity = numTeams * maxPerGroup
-
-        shuffled.forEach((name, index) => {
-          if (index < maxCapacity) {
-            // Distribute evenly across teams up to maxPerGroup each
-            const teamIndex = index % numTeams
-            if (newTeams[teamIndex].length < maxPerGroup) {
-              newTeams[teamIndex].push(name)
-            } else {
-              // Find a team with space
-              const teamWithSpace = newTeams.findIndex(t => t.length < maxPerGroup)
-              if (teamWithSpace !== -1) {
-                newTeams[teamWithSpace].push(name)
-              } else {
-                newBench.push(name)
-              }
-            }
+      shuffled.forEach((name, index) => {
+        if (index < maxCapacity) {
+          // Distribute evenly across teams up to maxPerGroup each
+          const teamIndex = index % numTeams
+          if (newTeams[teamIndex].length < maxPerGroup) {
+            newTeams[teamIndex].push(name)
           } else {
-            newBench.push(name)
-          }
-        })
-      } else {
-        // Max per group mode - create as many teams as needed
-        const fullTeamCount = Math.floor(names.length / maxPerGroup)
-
-        if (fullTeamCount === 0) {
-          newTeams = []
-          newBench = [...shuffled]
-        } else {
-          newTeams = Array.from({ length: fullTeamCount }, () => [])
-          shuffled.forEach((name, index) => {
-            if (index < fullTeamCount * maxPerGroup) {
-              newTeams[Math.floor(index / maxPerGroup)].push(name)
+            // Find a team with space
+            const teamWithSpace = newTeams.findIndex(t => t.length < maxPerGroup)
+            if (teamWithSpace !== -1) {
+              newTeams[teamWithSpace].push(name)
             } else {
               newBench.push(name)
             }
-          })
+          }
+        } else {
+          newBench.push(name)
         }
-      }
+      })
 
       setTeams(newTeams)
       setBench(newBench)
@@ -297,8 +269,7 @@ function TeamPicker() {
 
   const canGenerate = () => {
     if (names.length === 0) return false
-    if (distributionMode === 'teams') return names.length >= numTeams
-    return true
+    return names.length >= numTeams
   }
 
   const exportToCSV = () => {
@@ -391,41 +362,24 @@ function TeamPicker() {
       )}
 
       <div className="controls-section">
-        <div className="mode-toggle">
-          <button
-            className={`mode-btn ${distributionMode === 'teams' ? 'active' : ''}`}
-            onClick={() => setDistributionMode('teams')}
-          >
-            # of Teams
-          </button>
-          <button
-            className={`mode-btn ${distributionMode === 'maxPerGroup' ? 'active' : ''}`}
-            onClick={() => setDistributionMode('maxPerGroup')}
-          >
-            Max per Group
-          </button>
-        </div>
-
-        {distributionMode === 'teams' && (
-          <div className="team-count-control">
-            <label>Number of Teams</label>
-            <div className="counter">
-              <button
-                onClick={() => setNumTeams(Math.max(2, numTeams - 1))}
-                className="counter-btn"
-              >
-                -
-              </button>
-              <span className="counter-value">{numTeams}</span>
-              <button
-                onClick={() => setNumTeams(Math.min(names.length || 10, numTeams + 1))}
-                className="counter-btn"
-              >
-                +
-              </button>
-            </div>
+        <div className="team-count-control">
+          <label>Number of Teams</label>
+          <div className="counter">
+            <button
+              onClick={() => setNumTeams(Math.max(2, numTeams - 1))}
+              className="counter-btn"
+            >
+              -
+            </button>
+            <span className="counter-value">{numTeams}</span>
+            <button
+              onClick={() => setNumTeams(Math.min(names.length || 10, numTeams + 1))}
+              className="counter-btn"
+            >
+              +
+            </button>
           </div>
-        )}
+        </div>
 
         <div className="team-count-control">
           <label>Max per Team</label>
