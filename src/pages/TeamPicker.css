@@ -1,0 +1,257 @@
+.team-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.name-input {
+  flex: 1;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--surface-light);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.name-input:focus {
+  border-color: var(--primary);
+}
+
+.name-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.add-btn {
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.75rem;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.add-btn:hover {
+  background: var(--primary-dark);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.names-section {
+  background: var(--surface);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.names-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.names-count {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.clear-btn {
+  background: transparent;
+  color: var(--danger);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.names-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.name-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-light);
+  padding: 0.5rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+}
+
+.remove-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: var(--danger);
+}
+
+.controls-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.team-count-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+
+.team-count-control label {
+  font-weight: 500;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.counter-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--surface-light);
+  color: var(--text);
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.counter-btn:hover {
+  background: var(--primary);
+}
+
+.counter-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.generate-btn {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.generate-btn:hover:not(:disabled) {
+  transform: scale(1.02);
+}
+
+.generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.generate-btn.shuffling {
+  animation: pulse 0.5s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.results-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.results-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.export-btn {
+  background: var(--surface);
+  color: var(--accent);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.export-btn:hover {
+  background: var(--surface-light);
+}
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.team-card {
+  background: var(--surface);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.team-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.team-members {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.team-member {
+  padding: 0.5rem 0.75rem;
+  background: var(--surface-light);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+}

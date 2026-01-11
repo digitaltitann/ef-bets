@@ -1,19 +1,26 @@
 # EF Bets - Project Context
 
 ## Overview
-EF Bets is a PWA sports betting app built with React, TypeScript, and Vite.
+EF Bets is a PWA with group/team utility tools, built with React, TypeScript, and Vite.
 
 ## Tech Stack
 - React 18 + TypeScript
 - Vite with vite-plugin-pwa
 - React Router for navigation
-- CSS modules (plain CSS files per component)
+- CSS files per component (not CSS modules)
 
 ## Project Structure
 - `src/components/` - Reusable components (Layout)
-- `src/pages/` - Page components (Home, Bets, Profile)
+- `src/pages/` - Page components (Home, TeamPicker, Profile)
 - `src/index.css` - Global styles and CSS variables
 - `vite.config.ts` - Vite + PWA configuration
+
+## Modules
+1. **Team Picker** (`/teams`) - Random team generator
+   - Add participants by name
+   - Choose number of teams
+   - Shuffle and distribute randomly
+   - Export results to CSV
 
 ## Conventions
 - Mobile-first design approach
@@ -25,8 +32,7 @@ EF Bets is a PWA sports betting app built with React, TypeScript, and Vite.
 - `npm run dev` - Start dev server
 - `npm run build` - Production build
 - `npm run preview` - Preview production build
+- `vercel --prod` - Deploy to production
 
-## Current State
-- Basic app structure with 3 pages
-- Static/mock data (no backend yet)
-- PWA configured but icons need to be added
+## Deployment
+- Hosted on Vercel: https://ef-bets.vercel.app
