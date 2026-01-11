@@ -166,11 +166,31 @@ function TeamPicker() {
       let newBench: string[] = []
 
       if (distributionMode === 'teams') {
+        // Create specified number of teams, max maxPerGroup per team
         newTeams = Array.from({ length: numTeams }, () => [])
+        const maxCapacity = numTeams * maxPerGroup
+
         shuffled.forEach((name, index) => {
-          newTeams[index % numTeams].push(name)
+          if (index < maxCapacity) {
+            // Distribute evenly across teams up to maxPerGroup each
+            const teamIndex = index % numTeams
+            if (newTeams[teamIndex].length < maxPerGroup) {
+              newTeams[teamIndex].push(name)
+            } else {
+              // Find a team with space
+              const teamWithSpace = newTeams.findIndex(t => t.length < maxPerGroup)
+              if (teamWithSpace !== -1) {
+                newTeams[teamWithSpace].push(name)
+              } else {
+                newBench.push(name)
+              }
+            }
+          } else {
+            newBench.push(name)
+          }
         })
       } else {
+        // Max per group mode - create as many teams as needed
         const fullTeamCount = Math.floor(names.length / maxPerGroup)
 
         if (fullTeamCount === 0) {
@@ -386,7 +406,7 @@ function TeamPicker() {
           </button>
         </div>
 
-        {distributionMode === 'teams' ? (
+        {distributionMode === 'teams' && (
           <div className="team-count-control">
             <label>Number of Teams</label>
             <div className="counter">
@@ -405,26 +425,26 @@ function TeamPicker() {
               </button>
             </div>
           </div>
-        ) : (
-          <div className="team-count-control">
-            <label>Max per Group</label>
-            <div className="counter">
-              <button
-                onClick={() => setMaxPerGroup(Math.max(2, maxPerGroup - 1))}
-                className="counter-btn"
-              >
-                -
-              </button>
-              <span className="counter-value">{maxPerGroup}</span>
-              <button
-                onClick={() => setMaxPerGroup(maxPerGroup + 1)}
-                className="counter-btn"
-              >
-                +
-              </button>
-            </div>
-          </div>
         )}
+
+        <div className="team-count-control">
+          <label>Max per Team</label>
+          <div className="counter">
+            <button
+              onClick={() => setMaxPerGroup(Math.max(2, maxPerGroup - 1))}
+              className="counter-btn"
+            >
+              -
+            </button>
+            <span className="counter-value">{maxPerGroup}</span>
+            <button
+              onClick={() => setMaxPerGroup(maxPerGroup + 1)}
+              className="counter-btn"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
         <button
           onClick={generateTeams}
