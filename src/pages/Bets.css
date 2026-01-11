@@ -211,6 +211,11 @@
   background: var(--success);
 }
 
+.winner-btn.selected {
+  background: var(--success);
+  color: white;
+}
+
 .bet-winner {
   display: flex;
   align-items: center;

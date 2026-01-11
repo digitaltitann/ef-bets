@@ -281,8 +281,20 @@ function Bets() {
                   <span className="bet-matchup">{bet.team1} vs {bet.team2}</span>
                   <span className="bet-amount">${bet.amount.toFixed(2)}</span>
                 </div>
-                <div className="bet-winner">
-                  <span className="winner-tag">{bet.winner} won</span>
+                <div className="bet-actions">
+                  <span className="winner-label">Winner:</span>
+                  <button
+                    className={`winner-btn ${bet.winner === bet.team1 ? 'selected' : ''}`}
+                    onClick={() => selectWinner(bet.id, bet.team1)}
+                  >
+                    {bet.team1}
+                  </button>
+                  <button
+                    className={`winner-btn ${bet.winner === bet.team2 ? 'selected' : ''}`}
+                    onClick={() => selectWinner(bet.id, bet.team2)}
+                  >
+                    {bet.team2}
+                  </button>
                 </div>
                 <button
                   className="delete-btn"
