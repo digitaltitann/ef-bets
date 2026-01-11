@@ -17,6 +17,8 @@ interface Session {
 }
 
 const SESSIONS_KEY = 'ef-bets-sessions'
+const CURRENT_SESSION_KEY = 'ef-bets-current-session'
+const PENDING_BET_KEY = 'ef-bets-pending-bet'
 
 function Bets() {
   const [team1, setTeam1] = useState('')
@@ -34,11 +36,52 @@ function Bets() {
     if (saved) {
       setSessions(JSON.parse(saved))
     }
+
+    // Load current session
+    const currentSession = localStorage.getItem(CURRENT_SESSION_KEY)
+    if (currentSession) {
+      const session = JSON.parse(currentSession)
+      setCurrentSessionId(session.id)
+      setSessionName(session.name)
+      setBets(session.bets || [])
+    }
+
+    // Check for pending bet from Team Picker
+    const pendingBet = localStorage.getItem(PENDING_BET_KEY)
+    if (pendingBet) {
+      const { team1: t1, team2: t2 } = JSON.parse(pendingBet)
+      setTeam1(t1)
+      setTeam2(t2)
+      localStorage.removeItem(PENDING_BET_KEY)
+    }
   }, [])
 
   const saveSessions = (newSessions: Session[]) => {
     setSessions(newSessions)
     localStorage.setItem(SESSIONS_KEY, JSON.stringify(newSessions))
+  }
+
+  const updateCurrentSession = (newBets: Bet[]) => {
+    if (!currentSessionId) return
+
+    // Update current session in localStorage
+    const currentSession = localStorage.getItem(CURRENT_SESSION_KEY)
+    if (currentSession) {
+      const session = JSON.parse(currentSession)
+      session.bets = newBets
+      localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(session))
+
+      // Also update in sessions list
+      const sessionsData = localStorage.getItem(SESSIONS_KEY)
+      if (sessionsData) {
+        const allSessions = JSON.parse(sessionsData)
+        const updatedSessions = allSessions.map((s: Session) =>
+          s.id === currentSessionId ? { ...s, bets: newBets } : s
+        )
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(updatedSessions))
+        setSessions(updatedSessions)
+      }
+    }
   }
 
   const addBet = () => {
@@ -52,20 +95,26 @@ function Bets() {
       winner: null
     }
 
-    setBets([newBet, ...bets])
+    const newBets = [newBet, ...bets]
+    setBets(newBets)
+    updateCurrentSession(newBets)
     setTeam1('')
     setTeam2('')
     setAmount('')
   }
 
   const selectWinner = (betId: number, winner: string) => {
-    setBets(bets.map(bet =>
+    const newBets = bets.map(bet =>
       bet.id === betId ? { ...bet, winner } : bet
-    ))
+    )
+    setBets(newBets)
+    updateCurrentSession(newBets)
   }
 
   const deleteBet = (betId: number) => {
-    setBets(bets.filter(bet => bet.id !== betId))
+    const newBets = bets.filter(bet => bet.id !== betId)
+    setBets(newBets)
+    updateCurrentSession(newBets)
   }
 
   const saveSession = () => {
