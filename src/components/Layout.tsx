@@ -25,9 +25,9 @@ function Layout() {
           <span className="nav-icon">&#127918;</span>
           <span className="nav-label">Bets</span>
         </NavLink>
-        <NavLink to="/profile" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <span className="nav-icon">&#128100;</span>
-          <span className="nav-label">Profile</span>
+        <NavLink to="/settlements" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <span className="nav-icon">&#128176;</span>
+          <span className="nav-label">Settle</span>
         </NavLink>
       </nav>
     </div>
