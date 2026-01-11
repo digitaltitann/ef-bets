@@ -167,33 +167,35 @@ function TeamPicker() {
   }
 
   const submitTeams = () => {
-    if (!currentSession || teams.length < 2) return
+    if (teams.length < 2) return
 
-    // Save team round to session
-    const newRound: TeamRound = {
-      id: Date.now(),
-      teams: teams,
-      bench: bench,
-      createdAt: new Date().toISOString()
-    }
+    // Save team round to session if one exists
+    if (currentSession) {
+      const newRound: TeamRound = {
+        id: Date.now(),
+        teams: teams,
+        bench: bench,
+        createdAt: new Date().toISOString()
+      }
 
-    const updatedSession: Session = {
-      ...currentSession,
-      teamRounds: [...(currentSession.teamRounds || []), newRound]
-    }
+      const updatedSession: Session = {
+        ...currentSession,
+        teamRounds: [...(currentSession.teamRounds || []), newRound]
+      }
 
-    // Update current session
-    localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(updatedSession))
-    setCurrentSession(updatedSession)
+      // Update current session
+      localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(updatedSession))
+      setCurrentSession(updatedSession)
 
-    // Update in sessions list
-    const sessionsData = localStorage.getItem(SESSIONS_KEY)
-    if (sessionsData) {
-      const sessions: Session[] = JSON.parse(sessionsData)
-      const updatedSessions = sessions.map(s =>
-        s.id === currentSession.id ? updatedSession : s
-      )
-      localStorage.setItem(SESSIONS_KEY, JSON.stringify(updatedSessions))
+      // Update in sessions list
+      const sessionsData = localStorage.getItem(SESSIONS_KEY)
+      if (sessionsData) {
+        const sessions: Session[] = JSON.parse(sessionsData)
+        const updatedSessions = sessions.map(s =>
+          s.id === currentSession.id ? updatedSession : s
+        )
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(updatedSessions))
+      }
     }
 
     // Navigate to Bets page with team data
@@ -378,7 +380,7 @@ function TeamPicker() {
             )}
           </div>
 
-          {currentSession && teams.length >= 2 && (
+          {teams.length >= 2 && (
             <div className="bet-section">
               <div className="bet-preview">
                 <span className="bet-team">{formatTeamName(teams[0])}</span>
