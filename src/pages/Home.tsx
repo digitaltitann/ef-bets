@@ -94,6 +94,7 @@ function Home() {
 
   return (
     <div className="home">
+      <img src="/ef.jpg" alt="EF Bets" className="hero-image" />
       <h1 className="hero-title">EF Bets</h1>
 
       {currentSession && (
