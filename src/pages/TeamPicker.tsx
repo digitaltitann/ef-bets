@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import './TeamPicker.css'
 
+type DistributionMode = 'teams' | 'maxPerGroup'
+
 function TeamPicker() {
   const [nameInput, setNameInput] = useState('')
   const [names, setNames] = useState<string[]>([])
   const [numTeams, setNumTeams] = useState(2)
+  const [maxPerGroup, setMaxPerGroup] = useState(4)
+  const [distributionMode, setDistributionMode] = useState<DistributionMode>('teams')
   const [teams, setTeams] = useState<string[][]>([])
+  const [bench, setBench] = useState<string[]>([])
   const [isShuffling, setIsShuffling] = useState(false)
 
   const addName = () => {
@@ -33,6 +38,7 @@ function TeamPicker() {
   const clearAll = () => {
     setNames([])
     setTeams([])
+    setBench([])
   }
 
   const shuffleArray = <T,>(array: T[]): T[] => {
@@ -45,31 +51,62 @@ function TeamPicker() {
   }
 
   const generateTeams = () => {
-    if (names.length < numTeams) return
+    if (names.length === 0) return
+    if (distributionMode === 'teams' && names.length < numTeams) return
 
     setIsShuffling(true)
 
-    // Animation delay
     setTimeout(() => {
       const shuffled = shuffleArray(names)
-      const newTeams: string[][] = Array.from({ length: numTeams }, () => [])
+      let newTeams: string[][]
+      let newBench: string[] = []
 
-      shuffled.forEach((name, index) => {
-        newTeams[index % numTeams].push(name)
-      })
+      if (distributionMode === 'teams') {
+        newTeams = Array.from({ length: numTeams }, () => [])
+        shuffled.forEach((name, index) => {
+          newTeams[index % numTeams].push(name)
+        })
+      } else {
+        const fullTeamCount = Math.floor(names.length / maxPerGroup)
+
+        if (fullTeamCount === 0) {
+          newTeams = []
+          newBench = [...shuffled]
+        } else {
+          newTeams = Array.from({ length: fullTeamCount }, () => [])
+          shuffled.forEach((name, index) => {
+            if (index < fullTeamCount * maxPerGroup) {
+              newTeams[Math.floor(index / maxPerGroup)].push(name)
+            } else {
+              newBench.push(name)
+            }
+          })
+        }
+      }
 
       setTeams(newTeams)
+      setBench(newBench)
       setIsShuffling(false)
     }, 500)
   }
 
-  const exportToCSV = () => {
-    if (teams.length === 0) return
+  const canGenerate = () => {
+    if (names.length === 0) return false
+    if (distributionMode === 'teams') return names.length >= numTeams
+    return true
+  }
 
-    const maxLength = Math.max(...teams.map(t => t.length))
-    const headers = teams.map((_, i) => `Team ${i + 1}`).join(',')
+  const exportToCSV = () => {
+    if (teams.length === 0 && bench.length === 0) return
+
+    const allGroups = bench.length > 0 ? [...teams, bench] : teams
+    const maxLength = Math.max(...allGroups.map(t => t.length))
+    const headers = [
+      ...teams.map((_, i) => `Team ${i + 1}`),
+      ...(bench.length > 0 ? ['Bench'] : [])
+    ].join(',')
     const rows = Array.from({ length: maxLength }, (_, rowIndex) => {
-      return teams.map(team => team[rowIndex] || '').join(',')
+      return allGroups.map(group => group[rowIndex] || '').join(',')
     })
 
     const csv = [headers, ...rows].join('\n')
@@ -134,35 +171,71 @@ function TeamPicker() {
       )}
 
       <div className="controls-section">
-        <div className="team-count-control">
-          <label>Number of Teams</label>
-          <div className="counter">
-            <button
-              onClick={() => setNumTeams(Math.max(2, numTeams - 1))}
-              className="counter-btn"
-            >
-              -
-            </button>
-            <span className="counter-value">{numTeams}</span>
-            <button
-              onClick={() => setNumTeams(Math.min(names.length || 10, numTeams + 1))}
-              className="counter-btn"
-            >
-              +
-            </button>
-          </div>
+        <div className="mode-toggle">
+          <button
+            className={`mode-btn ${distributionMode === 'teams' ? 'active' : ''}`}
+            onClick={() => setDistributionMode('teams')}
+          >
+            # of Teams
+          </button>
+          <button
+            className={`mode-btn ${distributionMode === 'maxPerGroup' ? 'active' : ''}`}
+            onClick={() => setDistributionMode('maxPerGroup')}
+          >
+            Max per Group
+          </button>
         </div>
+
+        {distributionMode === 'teams' ? (
+          <div className="team-count-control">
+            <label>Number of Teams</label>
+            <div className="counter">
+              <button
+                onClick={() => setNumTeams(Math.max(2, numTeams - 1))}
+                className="counter-btn"
+              >
+                -
+              </button>
+              <span className="counter-value">{numTeams}</span>
+              <button
+                onClick={() => setNumTeams(Math.min(names.length || 10, numTeams + 1))}
+                className="counter-btn"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="team-count-control">
+            <label>Max per Group</label>
+            <div className="counter">
+              <button
+                onClick={() => setMaxPerGroup(Math.max(2, maxPerGroup - 1))}
+                className="counter-btn"
+              >
+                -
+              </button>
+              <span className="counter-value">{maxPerGroup}</span>
+              <button
+                onClick={() => setMaxPerGroup(maxPerGroup + 1)}
+                className="counter-btn"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        )}
 
         <button
           onClick={generateTeams}
-          disabled={names.length < numTeams || isShuffling}
+          disabled={!canGenerate() || isShuffling}
           className={`generate-btn ${isShuffling ? 'shuffling' : ''}`}
         >
           {isShuffling ? 'Shuffling...' : 'Generate Teams'}
         </button>
       </div>
 
-      {teams.length > 0 && (
+      {(teams.length > 0 || bench.length > 0) && (
         <div className="results-section">
           <div className="results-header">
             <h3>Generated Teams</h3>
@@ -179,6 +252,16 @@ function TeamPicker() {
                 </div>
               </div>
             ))}
+            {bench.length > 0 && (
+              <div className="team-card bench-card">
+                <div className="team-header bench-header">Bench</div>
+                <div className="team-members">
+                  {bench.map((member, mIndex) => (
+                    <div key={mIndex} className="team-member">{member}</div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
