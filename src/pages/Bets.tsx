@@ -223,7 +223,7 @@ function Bets() {
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Amount"
+            placeholder="Amount Per Person"
             className="amount-input"
             min="0"
             step="0.01"
