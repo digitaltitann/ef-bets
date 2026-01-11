@@ -3,6 +3,14 @@ import './TeamPicker.css'
 
 type DistributionMode = 'teams' | 'maxPerGroup'
 
+interface Bet {
+  id: number
+  team1: string
+  team2: string
+  amount: number
+  winner: string | null
+}
+
 interface TeamRound {
   id: number
   teams: string[][]
@@ -13,7 +21,7 @@ interface TeamRound {
 interface Session {
   id: number
   name: string
-  bets: unknown[]
+  bets: Bet[]
   teamRounds: TeamRound[]
   createdAt: string
 }
@@ -31,6 +39,8 @@ interface TeamPickerState {
   distributionMode: DistributionMode
   submitted: boolean
   sessionId: number | null
+  betAmount: string
+  currentBetId: number | null
 }
 
 function TeamPicker() {
@@ -44,6 +54,8 @@ function TeamPicker() {
   const [isShuffling, setIsShuffling] = useState(false)
   const [currentSession, setCurrentSession] = useState<Session | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [betAmount, setBetAmount] = useState('')
+  const [currentBetId, setCurrentBetId] = useState<number | null>(null)
 
   // Load session and persisted state on mount
   useEffect(() => {
@@ -53,6 +65,9 @@ function TeamPicker() {
       session = JSON.parse(savedSession)
       if (session && !session.teamRounds) {
         session.teamRounds = []
+      }
+      if (session && !session.bets) {
+        session.bets = []
       }
       setCurrentSession(session)
     }
@@ -70,6 +85,8 @@ function TeamPicker() {
         setMaxPerGroup(state.maxPerGroup)
         setDistributionMode(state.distributionMode)
         setSubmitted(state.submitted)
+        setBetAmount(state.betAmount || '')
+        setCurrentBetId(state.currentBetId || null)
       } else {
         // Different session, clear saved state
         localStorage.removeItem(TEAM_PICKER_STATE_KEY)
@@ -87,10 +104,12 @@ function TeamPicker() {
       maxPerGroup,
       distributionMode,
       submitted,
-      sessionId: currentSession?.id ?? null
+      sessionId: currentSession?.id ?? null,
+      betAmount,
+      currentBetId
     }
     localStorage.setItem(TEAM_PICKER_STATE_KEY, JSON.stringify(state))
-  }, [names, teams, bench, numTeams, maxPerGroup, distributionMode, submitted, currentSession])
+  }, [names, teams, bench, numTeams, maxPerGroup, distributionMode, submitted, currentSession, betAmount, currentBetId])
 
   const addName = () => {
     const trimmed = nameInput.trim()
@@ -119,6 +138,8 @@ function TeamPicker() {
     setTeams([])
     setBench([])
     setSubmitted(false)
+    setBetAmount('')
+    setCurrentBetId(null)
   }
 
   const shuffleArray = <T,>(array: T[]): T[] => {
@@ -136,6 +157,8 @@ function TeamPicker() {
 
     setIsShuffling(true)
     setSubmitted(false)
+    setBetAmount('')
+    setCurrentBetId(null)
 
     setTimeout(() => {
       const shuffled = shuffleArray(names)
@@ -171,8 +194,13 @@ function TeamPicker() {
     }, 500)
   }
 
+  const formatTeamName = (team: string[]): string => {
+    return team.join('+')
+  }
+
   const submitTeams = () => {
-    if (!currentSession || teams.length === 0) return
+    if (!currentSession || teams.length < 2) return
+    if (!betAmount || parseFloat(betAmount) <= 0) return
 
     const newRound: TeamRound = {
       id: Date.now(),
@@ -181,9 +209,20 @@ function TeamPicker() {
       createdAt: new Date().toISOString()
     }
 
+    // Create bet from teams
+    const betId = Date.now()
+    const newBet: Bet = {
+      id: betId,
+      team1: formatTeamName(teams[0]),
+      team2: formatTeamName(teams[1]),
+      amount: parseFloat(betAmount),
+      winner: null
+    }
+
     const updatedSession: Session = {
       ...currentSession,
-      teamRounds: [...(currentSession.teamRounds || []), newRound]
+      teamRounds: [...(currentSession.teamRounds || []), newRound],
+      bets: [...(currentSession.bets || []), newBet]
     }
 
     // Update current session
@@ -200,7 +239,40 @@ function TeamPicker() {
       localStorage.setItem(SESSIONS_KEY, JSON.stringify(updatedSessions))
     }
 
+    setCurrentBetId(betId)
     setSubmitted(true)
+  }
+
+  const selectWinner = (winner: string) => {
+    if (!currentSession || !currentBetId) return
+
+    const updatedBets = currentSession.bets.map(bet =>
+      bet.id === currentBetId ? { ...bet, winner } : bet
+    )
+
+    const updatedSession: Session = {
+      ...currentSession,
+      bets: updatedBets
+    }
+
+    // Update current session
+    localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(updatedSession))
+    setCurrentSession(updatedSession)
+
+    // Update in sessions list
+    const sessionsData = localStorage.getItem(SESSIONS_KEY)
+    if (sessionsData) {
+      const sessions: Session[] = JSON.parse(sessionsData)
+      const updatedSessions = sessions.map(s =>
+        s.id === currentSession.id ? updatedSession : s
+      )
+      localStorage.setItem(SESSIONS_KEY, JSON.stringify(updatedSessions))
+    }
+  }
+
+  const getCurrentBet = (): Bet | null => {
+    if (!currentSession || !currentBetId) return null
+    return currentSession.bets.find(b => b.id === currentBetId) || null
   }
 
   const canGenerate = () => {
@@ -394,15 +466,67 @@ function TeamPicker() {
             )}
           </div>
 
-          {currentSession && !submitted && (
-            <button onClick={submitTeams} className="submit-btn">
-              Submit Teams to Session
-            </button>
+          {currentSession && teams.length >= 2 && !submitted && (
+            <div className="bet-section">
+              <div className="bet-preview">
+                <span className="bet-team">{formatTeamName(teams[0])}</span>
+                <span className="bet-vs">vs</span>
+                <span className="bet-team">{formatTeamName(teams[1])}</span>
+              </div>
+              <div className="bet-amount-row">
+                <span className="currency">$</span>
+                <input
+                  type="number"
+                  value={betAmount}
+                  onChange={(e) => setBetAmount(e.target.value)}
+                  placeholder="Bet amount"
+                  className="bet-amount-input"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <button
+                onClick={submitTeams}
+                className="submit-btn"
+                disabled={!betAmount || parseFloat(betAmount) <= 0}
+              >
+                Submit Bet
+              </button>
+            </div>
           )}
 
-          {submitted && (
-            <div className="submitted-msg">
-              Teams saved to session!
+          {submitted && currentBetId && (
+            <div className="winner-section">
+              {(() => {
+                const currentBet = getCurrentBet()
+                if (!currentBet) return null
+
+                return currentBet.winner ? (
+                  <div className="winner-result">
+                    <span className="winner-label">Winner:</span>
+                    <span className="winner-name">{currentBet.winner}</span>
+                    <span className="winner-amount">${currentBet.amount.toFixed(2)}</span>
+                  </div>
+                ) : (
+                  <>
+                    <p className="winner-prompt">Select the winner:</p>
+                    <div className="winner-buttons">
+                      <button
+                        className="winner-btn"
+                        onClick={() => selectWinner(currentBet.team1)}
+                      >
+                        {currentBet.team1}
+                      </button>
+                      <button
+                        className="winner-btn"
+                        onClick={() => selectWinner(currentBet.team2)}
+                      >
+                        {currentBet.team2}
+                      </button>
+                    </div>
+                  </>
+                )
+              })()}
             </div>
           )}
         </div>

@@ -340,3 +340,124 @@
   border-radius: 0.5rem;
   margin-top: 1rem;
 }
+
+.bet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--surface-light);
+  border-radius: 0.75rem;
+}
+
+.bet-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bet-team {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.bet-vs {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.bet-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--surface);
+  padding: 0 0.75rem;
+}
+
+.bet-amount-row:focus-within {
+  border-color: var(--primary);
+}
+
+.currency {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.bet-amount-input {
+  flex: 1;
+  padding: 0.75rem 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+}
+
+.bet-amount-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.winner-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--surface-light);
+  border-radius: 0.75rem;
+}
+
+.winner-prompt {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.winner-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.winner-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  word-break: break-word;
+}
+
+.winner-btn:hover {
+  background: var(--success);
+  color: white;
+}
+
+.winner-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.winner-result .winner-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.winner-result .winner-name {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.winner-result .winner-amount {
+  color: var(--accent);
+  font-weight: 700;
+}
