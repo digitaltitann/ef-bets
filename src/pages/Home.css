@@ -85,6 +85,15 @@
   background: var(--surface-light);
 }
 
+.session-btn.share {
+  background: var(--accent);
+}
+
+.session-btn.join {
+  background: var(--warning);
+  color: var(--background);
+}
+
 .btn-icon {
   font-size: 1.5rem;
 }
@@ -258,4 +267,55 @@
 .session-item-delete:hover {
   color: var(--danger);
   background: rgba(231, 76, 60, 0.2);
+}
+
+/* Share/Join styles */
+.share-code-display {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.share-label {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.share-code {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.5rem;
+  color: var(--accent);
+  background: var(--surface-light);
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.share-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.share-prompt {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.join-prompt {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.code-input {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.5rem;
+}
+
+.error-msg {
+  color: var(--danger);
+  font-size: 0.875rem;
+  text-align: center;
 }

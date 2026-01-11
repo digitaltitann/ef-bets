@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { generateCode, saveSessionToCloud, loadSessionFromCloud } from '../firebase'
 import './Home.css'
 
 interface Bet {
@@ -10,10 +11,19 @@ interface Bet {
   winner: string | null
 }
 
+interface Expense {
+  id: number
+  paidBy: string
+  description: string
+  amount: number
+  splitAmong: string[]
+}
+
 interface Session {
   id: number
   name: string
   bets: Bet[]
+  expenses?: Expense[]
   createdAt: string
 }
 
@@ -26,7 +36,15 @@ function Home() {
   const [currentSession, setCurrentSession] = useState<Session | null>(null)
   const [showNewModal, setShowNewModal] = useState(false)
   const [showLoadModal, setShowLoadModal] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [showJoinModal, setShowJoinModal] = useState(false)
   const [newSessionName, setNewSessionName] = useState('')
+  const [shareCode, setShareCode] = useState('')
+  const [joinCode, setJoinCode] = useState('')
+  const [isSharing, setIsSharing] = useState(false)
+  const [isJoining, setIsJoining] = useState(false)
+  const [shareError, setShareError] = useState('')
+  const [joinError, setJoinError] = useState('')
 
   useEffect(() => {
     let loadedSessions: Session[] = []
@@ -109,6 +127,70 @@ function Home() {
     }
   }
 
+  const handleShare = async () => {
+    if (!currentSession) return
+
+    setIsSharing(true)
+    setShareError('')
+
+    try {
+      const code = generateCode()
+      await saveSessionToCloud(code, currentSession)
+      setShareCode(code)
+    } catch (error) {
+      console.error('Error sharing session:', error)
+      setShareError('Failed to share. Check your connection.')
+    } finally {
+      setIsSharing(false)
+    }
+  }
+
+  const handleJoin = async () => {
+    if (joinCode.length !== 4) {
+      setJoinError('Please enter a 4-digit code')
+      return
+    }
+
+    setIsJoining(true)
+    setJoinError('')
+
+    try {
+      const loadedSession = await loadSessionFromCloud(joinCode) as Session | null
+
+      if (loadedSession) {
+        // Add to sessions list if not already there
+        const exists = sessions.some(s => s.id === loadedSession.id)
+        if (!exists) {
+          const newSessions = [loadedSession, ...sessions]
+          saveSessions(newSessions)
+        }
+
+        saveCurrentSession(loadedSession)
+        setShowJoinModal(false)
+        setJoinCode('')
+      } else {
+        setJoinError('Session not found. Check the code.')
+      }
+    } catch (error) {
+      console.error('Error joining session:', error)
+      setJoinError('Failed to join. Check your connection.')
+    } finally {
+      setIsJoining(false)
+    }
+  }
+
+  const openShareModal = () => {
+    setShareCode('')
+    setShareError('')
+    setShowShareModal(true)
+  }
+
+  const openJoinModal = () => {
+    setJoinCode('')
+    setJoinError('')
+    setShowJoinModal(true)
+  }
+
   return (
     <div className="home">
       <img src="/ef.jpg" alt="EF Bets" className="hero-image" />
@@ -128,7 +210,7 @@ function Home() {
           setShowNewModal(true)
         }}>
           <span className="btn-icon">+</span>
-          <span>New Session</span>
+          <span>New</span>
         </button>
         <button
           className="session-btn save"
@@ -141,6 +223,21 @@ function Home() {
         <button className="session-btn load" onClick={() => setShowLoadModal(true)}>
           <span className="btn-icon">&#128194;</span>
           <span>Load</span>
+        </button>
+      </div>
+
+      <div className="session-buttons">
+        <button
+          className="session-btn share"
+          onClick={openShareModal}
+          disabled={!currentSession}
+        >
+          <span className="btn-icon">&#128279;</span>
+          <span>Share</span>
+        </button>
+        <button className="session-btn join" onClick={openJoinModal}>
+          <span className="btn-icon">&#128229;</span>
+          <span>Join</span>
         </button>
       </div>
 
@@ -159,6 +256,7 @@ function Home() {
         </button>
       </div>
 
+      {/* New Session Modal */}
       {showNewModal && (
         <div className="modal-overlay" onClick={() => setShowNewModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -187,6 +285,7 @@ function Home() {
         </div>
       )}
 
+      {/* Load Session Modal */}
       {showLoadModal && (
         <div className="modal-overlay" onClick={() => setShowLoadModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -214,6 +313,73 @@ function Home() {
             <div className="modal-actions">
               <button className="modal-btn cancel" onClick={() => setShowLoadModal(false)}>
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Session Modal */}
+      {showShareModal && (
+        <div className="modal-overlay" onClick={() => setShowShareModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Share Session</h3>
+            {shareCode ? (
+              <div className="share-code-display">
+                <p className="share-label">Share this code:</p>
+                <div className="share-code">{shareCode}</div>
+                <p className="share-hint">Code expires in 24 hours</p>
+              </div>
+            ) : (
+              <div className="share-prompt">
+                <p>Generate a 4-digit code to share "{currentSession?.name}" with others.</p>
+                {shareError && <p className="error-msg">{shareError}</p>}
+              </div>
+            )}
+            <div className="modal-actions">
+              <button className="modal-btn cancel" onClick={() => setShowShareModal(false)}>
+                {shareCode ? 'Done' : 'Cancel'}
+              </button>
+              {!shareCode && (
+                <button
+                  className="modal-btn confirm"
+                  onClick={handleShare}
+                  disabled={isSharing}
+                >
+                  {isSharing ? 'Generating...' : 'Generate Code'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Join Session Modal */}
+      {showJoinModal && (
+        <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Join Session</h3>
+            <p className="join-prompt">Enter the 4-digit code to join a session:</p>
+            <input
+              type="text"
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              placeholder="0000"
+              className="modal-input code-input"
+              maxLength={4}
+              autoFocus
+            />
+            {joinError && <p className="error-msg">{joinError}</p>}
+            <div className="modal-actions">
+              <button className="modal-btn cancel" onClick={() => setShowJoinModal(false)}>
+                Cancel
+              </button>
+              <button
+                className="modal-btn confirm"
+                onClick={handleJoin}
+                disabled={isJoining || joinCode.length !== 4}
+              >
+                {isJoining ? 'Joining...' : 'Join'}
               </button>
             </div>
           </div>
