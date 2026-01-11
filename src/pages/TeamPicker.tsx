@@ -20,7 +20,6 @@ interface Session {
 const CURRENT_SESSION_KEY = 'ef-bets-current-session'
 const SESSIONS_KEY = 'ef-bets-sessions'
 const TEAM_PICKER_STATE_KEY = 'ef-bets-team-picker-state'
-const PENDING_BET_KEY = 'ef-bets-pending-bet'
 
 interface TeamPickerState {
   names: string[]
@@ -197,15 +196,13 @@ function TeamPicker() {
       localStorage.setItem(SESSIONS_KEY, JSON.stringify(updatedSessions))
     }
 
-    // Save pending bet for Bets page
-    const pendingBet = {
-      team1: formatTeamName(teams[0]),
-      team2: formatTeamName(teams[1])
-    }
-    localStorage.setItem(PENDING_BET_KEY, JSON.stringify(pendingBet))
-
-    // Navigate to Bets page
-    navigate('/bets')
+    // Navigate to Bets page with team data
+    navigate('/bets', {
+      state: {
+        team1: formatTeamName(teams[0]),
+        team2: formatTeamName(teams[1])
+      }
+    })
   }
 
   const canGenerate = () => {

@@ -19,7 +19,11 @@ interface Session {
 
 const SESSIONS_KEY = 'ef-bets-sessions'
 const CURRENT_SESSION_KEY = 'ef-bets-current-session'
-const PENDING_BET_KEY = 'ef-bets-pending-bet'
+
+interface LocationState {
+  team1?: string
+  team2?: string
+}
 
 function Bets() {
   const location = useLocation()
@@ -41,9 +45,8 @@ function Bets() {
     }
   }, [])
 
-  // Load current session and check for pending bet when navigating to this page
+  // Load current session when navigating to this page
   useEffect(() => {
-    // Load current session
     const currentSession = localStorage.getItem(CURRENT_SESSION_KEY)
     if (currentSession) {
       const session = JSON.parse(currentSession)
@@ -51,16 +54,18 @@ function Bets() {
       setSessionName(session.name)
       setBets(session.bets || [])
     }
-
-    // Check for pending bet from Team Picker
-    const pendingBet = localStorage.getItem(PENDING_BET_KEY)
-    if (pendingBet) {
-      const { team1: t1, team2: t2 } = JSON.parse(pendingBet)
-      setTeam1(t1)
-      setTeam2(t2)
-      localStorage.removeItem(PENDING_BET_KEY)
-    }
   }, [location])
+
+  // Check for pending bet from Team Picker via navigation state
+  useEffect(() => {
+    const state = location.state as LocationState
+    if (state?.team1 && state?.team2) {
+      setTeam1(state.team1)
+      setTeam2(state.team2)
+      // Clear the state so it doesn't persist on refresh
+      window.history.replaceState({}, document.title)
+    }
+  }, [location.state])
 
   const saveSessions = (newSessions: Session[]) => {
     setSessions(newSessions)
