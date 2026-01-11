@@ -155,6 +155,7 @@ function Settlements() {
     })
 
     // Calculate bet winnings/losses
+    // bet.amount is per person - each loser loses that amount
     const settledBets = bets.filter(b => b.winner)
     settledBets.forEach(bet => {
       const team1Players = bet.team1.split('+').map(p => p.trim())
@@ -162,19 +163,20 @@ function Settlements() {
       const winners = bet.winner === bet.team1 ? team1Players : team2Players
       const losers = bet.winner === bet.team1 ? team2Players : team1Players
 
-      // Each loser pays their share to the winners
-      const amountPerLoser = bet.amount / losers.length
-      const amountPerWinner = (bet.amount * losers.length) / winners.length
-
+      // Each loser loses the bet amount (per person)
       losers.forEach(loser => {
         if (balances[loser]) {
-          balances[loser].lost += amountPerLoser
+          balances[loser].lost += bet.amount
         }
       })
 
+      // Winners split the total pot from all losers
+      const totalPot = bet.amount * losers.length
+      const amountPerWinner = totalPot / winners.length
+
       winners.forEach(winner => {
         if (balances[winner]) {
-          balances[winner].won += amountPerWinner / losers.length * losers.length / winners.length
+          balances[winner].won += amountPerWinner
         }
       })
     })
