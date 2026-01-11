@@ -18,8 +18,12 @@ function Layout() {
           <span className="nav-label">Home</span>
         </NavLink>
         <NavLink to="/randomizer" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <span className="nav-icon">&#127922;</span>
-          <span className="nav-label">Randomizer</span>
+          <span className="nav-icon">&#127919;</span>
+          <span className="nav-label">Teams</span>
+        </NavLink>
+        <NavLink to="/bets" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <span className="nav-icon">&#127918;</span>
+          <span className="nav-label">Bets</span>
         </NavLink>
         <NavLink to="/profile" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <span className="nav-icon">&#128100;</span>

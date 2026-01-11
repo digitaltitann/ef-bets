@@ -1,0 +1,383 @@
+.bets {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.session-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+}
+
+.session-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.session-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.session-btn {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--surface-light);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.session-btn:hover {
+  background: var(--primary);
+}
+
+.session-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.session-btn.save {
+  background: var(--success);
+}
+
+.session-btn.new {
+  background: var(--primary);
+}
+
+.bet-form {
+  background: var(--surface);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.teams-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.team-input {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--surface-light);
+  background: var(--background);
+  color: var(--text);
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.team-input:focus {
+  border-color: var(--primary);
+}
+
+.team-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.vs-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.amount-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--surface-light);
+  padding: 0 0.75rem;
+}
+
+.amount-input-row:focus-within {
+  border-color: var(--primary);
+}
+
+.currency {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.amount-input {
+  flex: 1;
+  padding: 0.75rem 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+}
+
+.amount-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.add-bet-btn {
+  padding: 0.875rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+.add-bet-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bets-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.bets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bet-card {
+  background: var(--surface);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.bet-card.settled {
+  opacity: 0.8;
+}
+
+.bet-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bet-matchup {
+  font-weight: 500;
+}
+
+.bet-amount {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.bet-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.winner-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.winner-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--surface-light);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.winner-btn:hover {
+  background: var(--success);
+}
+
+.bet-winner {
+  display: flex;
+  align-items: center;
+}
+
+.winner-tag {
+  background: var(--success);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  padding: 0.25rem;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.delete-btn:hover {
+  color: var(--danger);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.modal-input {
+  padding: 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--surface-light);
+  background: var(--background);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+}
+
+.modal-input:focus {
+  border-color: var(--primary);
+}
+
+.modal-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: opacity 0.2s ease;
+}
+
+.modal-btn.cancel {
+  background: var(--surface-light);
+  color: var(--text);
+}
+
+.modal-btn.save {
+  background: var(--success);
+  color: white;
+}
+
+.modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 1rem;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  background: var(--surface-light);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.session-item-info {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.session-item-info:hover {
+  background: var(--primary);
+}
+
+.session-item-name {
+  font-weight: 500;
+}
+
+.session-item-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.session-item-delete {
+  padding: 0.75rem;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.session-item-delete:hover {
+  color: var(--danger);
+  background: rgba(231, 76, 60, 0.2);
+}

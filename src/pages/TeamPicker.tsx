@@ -1,7 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './TeamPicker.css'
 
 type DistributionMode = 'teams' | 'maxPerGroup'
+
+interface TeamRound {
+  id: number
+  teams: string[][]
+  bench: string[]
+  createdAt: string
+}
+
+interface Session {
+  id: number
+  name: string
+  bets: unknown[]
+  teamRounds: TeamRound[]
+  createdAt: string
+}
+
+const CURRENT_SESSION_KEY = 'ef-bets-current-session'
+const SESSIONS_KEY = 'ef-bets-sessions'
 
 function TeamPicker() {
   const [nameInput, setNameInput] = useState('')
@@ -12,6 +30,19 @@ function TeamPicker() {
   const [teams, setTeams] = useState<string[][]>([])
   const [bench, setBench] = useState<string[]>([])
   const [isShuffling, setIsShuffling] = useState(false)
+  const [currentSession, setCurrentSession] = useState<Session | null>(null)
+  const [submitted, setSubmitted] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem(CURRENT_SESSION_KEY)
+    if (saved) {
+      const session = JSON.parse(saved)
+      if (!session.teamRounds) {
+        session.teamRounds = []
+      }
+      setCurrentSession(session)
+    }
+  }, [])
 
   const addName = () => {
     const trimmed = nameInput.trim()
@@ -39,6 +70,7 @@ function TeamPicker() {
     setNames([])
     setTeams([])
     setBench([])
+    setSubmitted(false)
   }
 
   const shuffleArray = <T,>(array: T[]): T[] => {
@@ -55,6 +87,7 @@ function TeamPicker() {
     if (distributionMode === 'teams' && names.length < numTeams) return
 
     setIsShuffling(true)
+    setSubmitted(false)
 
     setTimeout(() => {
       const shuffled = shuffleArray(names)
@@ -88,6 +121,38 @@ function TeamPicker() {
       setBench(newBench)
       setIsShuffling(false)
     }, 500)
+  }
+
+  const submitTeams = () => {
+    if (!currentSession || teams.length === 0) return
+
+    const newRound: TeamRound = {
+      id: Date.now(),
+      teams: teams,
+      bench: bench,
+      createdAt: new Date().toISOString()
+    }
+
+    const updatedSession: Session = {
+      ...currentSession,
+      teamRounds: [...(currentSession.teamRounds || []), newRound]
+    }
+
+    // Update current session
+    localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(updatedSession))
+    setCurrentSession(updatedSession)
+
+    // Update in sessions list
+    const sessionsData = localStorage.getItem(SESSIONS_KEY)
+    if (sessionsData) {
+      const sessions: Session[] = JSON.parse(sessionsData)
+      const updatedSessions = sessions.map(s =>
+        s.id === currentSession.id ? updatedSession : s
+      )
+      localStorage.setItem(SESSIONS_KEY, JSON.stringify(updatedSessions))
+    }
+
+    setSubmitted(true)
   }
 
   const canGenerate = () => {
@@ -136,6 +201,21 @@ function TeamPicker() {
   return (
     <div className="team-picker">
       <h2 className="page-title">Random Team Picker</h2>
+
+      {currentSession && (
+        <div className="session-indicator">
+          Session: <span>{currentSession.name}</span>
+          {currentSession.teamRounds?.length > 0 && (
+            <span className="round-count">({currentSession.teamRounds.length} rounds)</span>
+          )}
+        </div>
+      )}
+
+      {!currentSession && (
+        <div className="no-session-warning">
+          No active session. Start one from Home to save teams.
+        </div>
+      )}
 
       <div className="input-section">
         <div className="input-row">
@@ -231,7 +311,7 @@ function TeamPicker() {
           disabled={!canGenerate() || isShuffling}
           className={`generate-btn ${isShuffling ? 'shuffling' : ''}`}
         >
-          {isShuffling ? 'Shuffling...' : 'Generate Teams'}
+          {isShuffling ? 'Shuffling...' : 'Randomize'}
         </button>
       </div>
 
@@ -239,7 +319,9 @@ function TeamPicker() {
         <div className="results-section">
           <div className="results-header">
             <h3>Generated Teams</h3>
-            <button onClick={exportToCSV} className="export-btn">Export CSV</button>
+            <div className="results-actions">
+              <button onClick={exportToCSV} className="export-btn">Export CSV</button>
+            </div>
           </div>
           <div className="teams-grid">
             {teams.map((team, index) => (
@@ -263,6 +345,18 @@ function TeamPicker() {
               </div>
             )}
           </div>
+
+          {currentSession && !submitted && (
+            <button onClick={submitTeams} className="submit-btn">
+              Submit Teams to Session
+            </button>
+          )}
+
+          {submitted && (
+            <div className="submitted-msg">
+              Teams saved to session!
+            </div>
+          )}
         </div>
       )}
     </div>

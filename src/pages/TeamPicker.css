@@ -283,3 +283,60 @@
 .bench-header {
   background: linear-gradient(135deg, var(--warning), #e67e22);
 }
+
+.session-indicator {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.session-indicator span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.round-count {
+  margin-left: 0.5rem;
+  color: var(--text-secondary) !important;
+  font-weight: 400 !important;
+}
+
+.no-session-warning {
+  text-align: center;
+  color: var(--warning);
+  font-size: 0.875rem;
+  background: rgba(253, 203, 110, 0.1);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.results-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: var(--success);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
+}
+
+.submitted-msg {
+  text-align: center;
+  color: var(--success);
+  font-weight: 600;
+  padding: 1rem;
+  background: rgba(0, 184, 148, 0.1);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}

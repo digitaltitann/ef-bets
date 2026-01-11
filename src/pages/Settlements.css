@@ -1,0 +1,16 @@
+.settlements {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 2rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.coming-soon {
+  color: var(--text-secondary);
+}
