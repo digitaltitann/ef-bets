@@ -43,6 +43,7 @@ function TeamPicker() {
   useEffect(() => {
     const savedSession = localStorage.getItem(CURRENT_SESSION_KEY)
     let session: Session | null = null
+
     if (savedSession) {
       session = JSON.parse(savedSession)
       if (session && !session.teamRounds) {
@@ -52,6 +53,26 @@ function TeamPicker() {
         session.bets = []
       }
       setCurrentSession(session)
+    } else {
+      // Auto-create a session if none exists
+      const today = new Date()
+      const newSession: Session = {
+        id: Date.now(),
+        name: `${today.getMonth() + 1}/${today.getDate()} bets`,
+        bets: [],
+        teamRounds: [],
+        createdAt: new Date().toISOString()
+      }
+
+      // Save to localStorage
+      const savedSessions = localStorage.getItem(SESSIONS_KEY)
+      const sessions = savedSessions ? JSON.parse(savedSessions) : []
+      const newSessions = [newSession, ...sessions]
+      localStorage.setItem(SESSIONS_KEY, JSON.stringify(newSessions))
+      localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(newSession))
+
+      session = newSession
+      setCurrentSession(newSession)
     }
 
     // Load persisted team picker state

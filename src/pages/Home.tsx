@@ -29,13 +29,30 @@ function Home() {
   const [newSessionName, setNewSessionName] = useState('')
 
   useEffect(() => {
+    let loadedSessions: Session[] = []
     const savedSessions = localStorage.getItem(SESSIONS_KEY)
     if (savedSessions) {
-      setSessions(JSON.parse(savedSessions))
+      loadedSessions = JSON.parse(savedSessions)
+      setSessions(loadedSessions)
     }
+
     const savedCurrent = localStorage.getItem(CURRENT_SESSION_KEY)
     if (savedCurrent) {
       setCurrentSession(JSON.parse(savedCurrent))
+    } else {
+      // Auto-create a session if none exists
+      const today = new Date()
+      const newSession: Session = {
+        id: Date.now(),
+        name: `${today.getMonth() + 1}/${today.getDate()} bets`,
+        bets: [],
+        createdAt: new Date().toISOString()
+      }
+      const newSessions = [newSession, ...loadedSessions]
+      setSessions(newSessions)
+      setCurrentSession(newSession)
+      localStorage.setItem(SESSIONS_KEY, JSON.stringify(newSessions))
+      localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify(newSession))
     }
   }, [])
 
