@@ -111,12 +111,26 @@ function Home() {
   }
 
   const saveSession = () => {
-    if (!currentSession) return
+    // Read the latest session data from localStorage (may have been updated by other pages)
+    const latestSessionData = localStorage.getItem(CURRENT_SESSION_KEY)
+    if (!latestSessionData) return
 
-    const updatedSessions = sessions.map(s =>
-      s.id === currentSession.id ? currentSession : s
-    )
-    saveSessions(updatedSessions)
+    const latestSession: Session = JSON.parse(latestSessionData)
+
+    // Read latest sessions list from localStorage too
+    const latestSessionsData = localStorage.getItem(SESSIONS_KEY)
+    const latestSessions: Session[] = latestSessionsData ? JSON.parse(latestSessionsData) : []
+
+    // Update or add the session in the list
+    const exists = latestSessions.some(s => s.id === latestSession.id)
+    const updatedSessions = exists
+      ? latestSessions.map(s => s.id === latestSession.id ? latestSession : s)
+      : [latestSession, ...latestSessions]
+
+    // Save and update state
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(updatedSessions))
+    setSessions(updatedSessions)
+    setCurrentSession(latestSession)
   }
 
   const deleteSession = (sessionId: number) => {
